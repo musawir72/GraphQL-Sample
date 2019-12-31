@@ -1,5 +1,6 @@
 /*******  In this file we define our Schema  ***********/
 /******* Remember  ***********/
+// This schema defines the onject type on our graph
 
 /* Our Schema define
 
@@ -21,22 +22,8 @@ const {
   GraphQLID,
   GraphQLList
 } = graphql;
-
-//dummy data
-
-var books = [
-  { name: "HTML", cost: "$50", id: "1", authorId: "1" },
-  { name: "CSS", cost: "$52", id: "2", authorId: "1" },
-  { name: "JS", cost: "$53", id: "3", authorId: "2" },
-  { name: "REACT", cost: "$54", id: "4", authorId: "3" },
-  { name: "NODE", cost: "$55", id: "5", authorId: "3" }
-];
-
-var authors = [
-  { name: "Musawir", age: 25, id: "1" },
-  { name: "Hussain", age: 26, id: "2" },
-  { name: "Turi", age: 27, id: "3" }
-];
+const Book = require("../models/book");
+const Author = require("../models/author");
 
 //Define the data type (BookType)  on Graph
 const BookType = new GraphQLObjectType({
@@ -48,7 +35,7 @@ const BookType = new GraphQLObjectType({
     author: {
       type: AuthorType,
       resolve(parent, args) {
-        return _.find(authors, { id: parent.authorId });
+        // return _.find(authors, { id: parent.authorId });
       }
     }
   })
@@ -64,7 +51,7 @@ const AuthorType = new GraphQLObjectType({
     book: {
       type: new GraphQLList(BookType),
       resolve(parent, args) {
-        return _.filter(books, { authorId: parent.id });
+        //return _.filter(books, { authorId: parent.id });
       }
     }
   })
@@ -82,7 +69,7 @@ const RootQuery = new GraphQLObjectType({
 
       //this resolve () function where we wite code to get whichever data we need from our database or some other source
       resolve(parent, args) {
-        return _.find(books, { id: args.id });
+        //return _.find(books, { id: args.id });
       }
     },
 
@@ -93,25 +80,49 @@ const RootQuery = new GraphQLObjectType({
 
       //this resolve () function where we wite code to get whichever data we need from our database or some other source
       resolve(parent, args) {
-        return _.find(authors, { id: args.id });
+        //return _.find(authors, { id: args.id });
       }
     },
 
     books: {
       type: new GraphQLList(BookType),
       resolve(parent, args) {
-        return books;
+        //return books;
       }
     },
     authors: {
       type: new GraphQLList(AuthorType),
       resolve(parent, args) {
-        return authors;
+        // return authors;
+      }
+    }
+  }
+});
+
+//Mutation  (which allows us to mutate or change the data ,adding data,delete a data or edit data)
+
+const Mutation = new GraphQLObjectType({
+  name: "Mutation", // name of the mutation
+  fields: {
+    addauthor: {
+      type: AuthorType,
+      args: {
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt }
+      },
+      resolve(parent, args) {
+        let author = new Author({
+          name: args.name,
+          age: args.age
+        });
+
+        return author.save();
       }
     }
   }
 });
 
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 });
