@@ -3,7 +3,11 @@ const graphqlHTTP = require("express-graphql"); //allows express to interact and
 const app = express(); //invoke the function to create our app
 const schema = require("./schema/schema");
 const mongoose = require("mongoose");
+const cors = require("cors"); // allow cross site origin request
 
+// cors
+
+app.use(cors());
 //connect to mongoose
 mongoose.connect(
   "mongodb+srv://musawir:12345@cluster0-lfexz.mongodb.net/test?retryWrites=true&w=majority",
